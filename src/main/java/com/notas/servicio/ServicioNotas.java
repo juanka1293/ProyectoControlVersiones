@@ -73,23 +73,23 @@ public class ServicioNotas {
 
     private void crearMaterias(String grado) {
         // Matemáticas
-        Materia matematicas = new Materia("MAT" + grado, "Matemáticas " + grado, grado, "D001");
+        Materia matematicas = new Materia("MAT" + grado, "materia.matematicas", grado, "D001");
         materias.put(matematicas.getId(), matematicas);
 
         // Español
-        Materia espanol = new Materia("ESP" + grado, "Español " + grado, grado, "D002");
+        Materia espanol = new Materia("ESP" + grado, "materia.espanol", grado, "D002");
         materias.put(espanol.getId(), espanol);
 
         // Ciencias Naturales
-        Materia ciencias = new Materia("CIE" + grado, "Ciencias Naturales " + grado, grado, "D003");
+        Materia ciencias = new Materia("CIE" + grado, "materia.ciencias", grado, "D003");
         materias.put(ciencias.getId(), ciencias);
 
         // Sociales
-        Materia sociales = new Materia("SOC" + grado, "Ciencias Sociales " + grado, grado, "D004");
+        Materia sociales = new Materia("SOC" + grado, "materia.sociales", grado, "D004");
         materias.put(sociales.getId(), sociales);
 
         // Inglés
-        Materia ingles = new Materia("ING" + grado, "Inglés " + grado, grado, "D005");
+        Materia ingles = new Materia("ING" + grado, "materia.ingles", grado, "D005");
         materias.put(ingles.getId(), ingles);
     }
 
@@ -152,9 +152,12 @@ public class ServicioNotas {
         return Flux.fromIterable(materias.values())
             .flatMap(materia -> Flux.fromIterable(notas.getOrDefault(materia.getId(), new ArrayList<>()))
                 .filter(nota -> nota.getEstudianteId().equals(estudianteId))
-                .map(nota -> {
+                .doOnNext(nota -> {
                     nota.setNombreMateria(materia.getNombre());
-                    return nota;
+                    Usuario estudiante = usuarios.get(estudianteId);
+                    if (estudiante != null) {
+                        nota.setNombreEstudiante(estudiante.getNombre());
+                    }
                 }));
     }
 

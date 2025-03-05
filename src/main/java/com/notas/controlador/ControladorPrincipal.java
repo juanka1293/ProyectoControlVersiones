@@ -5,6 +5,7 @@ import com.notas.dto.MateriaDTO;
 import com.notas.dto.NotaDTO;
 import com.notas.servicio.ServicioNotas;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,9 @@ public class ControladorPrincipal {
     
     @Autowired
     private ServicioNotas servicioNotas;
+
+    @Autowired
+    private MessageSource messageSource;
 
     /**
      * Maneja excepciones generales en la aplicación
@@ -85,24 +89,39 @@ public class ControladorPrincipal {
     public Mono<String> estudiante(Authentication auth, Model model) {
         logger.debug("Accediendo a portal estudiante");
         String estudianteId = auth.getName();
-        model.addAttribute("nombreUsuario", estudianteId);
         
         return servicioNotas.buscarUsuario(estudianteId)
             .flatMap(estudiante -> {
+                logger.debug("Estudiante encontrado: {}", estudiante);
                 model.addAttribute("estudiante", estudiante);
+                model.addAttribute("nombreUsuario", estudiante.getNombre());
+                
                 return servicioNotas.obtenerNotasEstudiante(estudianteId)
                     .flatMap(nota -> 
                         servicioNotas.obtenerMateria(nota.getMateriaId())
                             .map(materia -> {
                                 NotaDTO dto = new NotaDTO();
                                 dto.setDocumento(nota.getEstudianteId());
-                                dto.setNombreMateria(materia.getNombre());
+                                
+                                // Traducir el nombre de la materia
+                                String nombreMateria = messageSource.getMessage(
+                                    materia.getNombre(), 
+                                    null, 
+                                    materia.getNombre(), 
+                                    LocaleContextHolder.getLocale()
+                                );
+                                dto.setNombreMateria(nombreMateria + " " + materia.getGrado());
                                 dto.setNota(nota.getCalificacion());
+                                dto.setNombreEstudiante(estudiante.getNombre());
+                                logger.debug("Creando DTO de nota: {}", dto);
                                 return dto;
                             })
                     )
                     .collectList()
-                    .doOnNext(notas -> model.addAttribute("notas", notas))
+                    .doOnNext(notas -> {
+                        logger.debug("Total de notas encontradas: {}", notas.size());
+                        model.addAttribute("notas", notas);
+                    })
                     .thenReturn("estudiante");
             });
     }
@@ -121,7 +140,15 @@ public class ControladorPrincipal {
                 MateriaDTO dto = new MateriaDTO();
                 dto.setId(materia.getId());
                 dto.setCodigo(materia.getId());
-                dto.setNombre(materia.getNombre());
+                
+                // Traducir el nombre de la materia usando messageSource
+                String nombreMateria = messageSource.getMessage(
+                    materia.getNombre(), 
+                    null, 
+                    materia.getNombre(), 
+                    LocaleContextHolder.getLocale()
+                );
+                dto.setNombre(nombreMateria);
                 dto.setGrado(materia.getGrado());
                 
                 return servicioNotas.obtenerNotasMateria(materia.getId())
@@ -150,7 +177,15 @@ public class ControladorPrincipal {
                 MateriaDTO dto = new MateriaDTO();
                 dto.setId(materia.getId());
                 dto.setCodigo(materia.getId());
-                dto.setNombre(materia.getNombre());
+                
+                // Traducir el nombre de la materia
+                String nombreMateria = messageSource.getMessage(
+                    materia.getNombre(), 
+                    null, 
+                    materia.getNombre(), 
+                    LocaleContextHolder.getLocale()
+                );
+                dto.setNombre(nombreMateria + " " + materia.getGrado());
                 dto.setGrado(materia.getGrado());
                 return dto;
             })
@@ -214,8 +249,9 @@ public class ControladorPrincipal {
     }
 
     @GetMapping("/registroEstudiante")
-    public String mostrarRegistroEstudiante() {
-        return "registroEstudiante";
+    public Mono<String> mostrarRegistroEstudiante(Model model, Authentication auth) {
+        model.addAttribute("nombreUsuario", auth.getName());
+        return Mono.just("registroEstudiante");
     }
 
     @PostMapping("/registrarEstudiante")
@@ -224,11 +260,13 @@ public class ControladorPrincipal {
                                     @RequestParam String password,
                                     @RequestParam String grado,
                                     @RequestParam(defaultValue = "es") String lang) {
+        logger.debug("Registrando estudiante: {}", documento);
+        
         return servicioNotas.registrarEstudiante(documento, nombre, password, grado)
-                .then(Mono.just("redirect:/docente?registroExitoso=true&lang=" + lang))
-                .onErrorResume(e -> {
-                    logger.error("Error al registrar estudiante", e);
-                    return Mono.just("redirect:/registroEstudiante?error=true&lang=" + lang);
-                });
+            .thenReturn("redirect:/docente?registroExitoso=true&lang=" + lang)
+            .onErrorResume(e -> {
+                logger.error("Error al registrar estudiante: ", e);
+                return Mono.just("redirect:/registroEstudiante?error=true&mensaje=" + e.getMessage() + "&lang=" + lang);
+            });
     }
 }

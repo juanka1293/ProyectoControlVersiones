@@ -12,8 +12,8 @@
             <span class="navbar-brand" th:text="#{app.titulo}">Sistema de Notas</span>
             <div class="navbar-nav ms-auto">
                 <span class="nav-link" th:text="${'Bienvenido, ' + nombreUsuario}">Bienvenido</span>
-                <a th:href="@{/docente(lang='es')}" class="nav-link">Español</a>
-                <a th:href="@{/docente(lang='en')}" class="nav-link">English</a>
+                <a th:href="@{/docente(lang='es')}" class="nav-link" th:text="'Español'">Español</a>
+                <a th:href="@{/docente(lang='en')}" class="nav-link" th:text="'English'">English</a>
                 <form th:action="@{/logout}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-link nav-link" th:text="#{nav.cerrarSesion}">Cerrar Sesión</button>
                 </form>
@@ -27,39 +27,36 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2 th:text="#{docente.materias}">Mis Materias</h2>
-            <a th:href="@{/registroEstudiante(lang=${#locale.language})}" class="btn btn-success mb-3">
-                <i class="bi bi-person-plus"></i> 
-                <span th:text="#{registro.titulo}">Registrar Estudiante</span>
-            </a>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-md-12">
+            <h2 th:text="#{docente.misMaterias}">Mis Materias</h2>
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th th:text="#{materias.nombre}">Nombre</th>
-                            <th th:text="#{materias.grado}">Grado</th>
+                            <th th:text="#{docente.grado}">Grado</th>
                             <th th:text="#{materias.acciones}">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="materia : ${materias}">
-                            <td th:text="${materia.nombre}">Matemáticas</td>
-                            <td th:text="${materia.grado}">9A</td>
+                            <td th:text="${materia.nombre}">Matemáticas 10A</td>
+                            <td th:text="${materia.grado}">10A</td>
                             <td>
-                                <a th:href="@{/materia/{id}(id=${materia.id},lang=${#locale.language})}" 
+                                <a th:href="@{'/materia/' + ${materia.id}(lang=${#locale.language})}" 
                                    class="btn btn-primary btn-sm" 
                                    th:text="#{materias.ver}">Ver</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="mt-3">
+                <a th:href="@{/registroEstudiante(lang=${#locale.language})}" class="btn btn-success">
+                    <i class="bi bi-person-plus"></i> 
+                    <span th:text="#{registro.titulo}">Registrar Estudiante</span>
+                </a>
             </div>
         </div>
     </div>
