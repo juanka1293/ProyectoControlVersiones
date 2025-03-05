@@ -26,7 +26,11 @@ public class ServicioNotas {
         String passwordEncriptado = passwordEncoder.encode(passwordPlano);
         logger.debug("Contraseña encriptada para usuarios de prueba: {}", passwordEncriptado);
         
-        Usuario docente = new Usuario("D001", passwordEncriptado, "Juan Pérez", Rol.DOCENTE);
+        Usuario docenteMat = new Usuario("D001", passwordEncriptado, "Juan Pérez", Rol.DOCENTE);
+        Usuario docenteEsp = new Usuario("D002", passwordEncriptado, "Ana Gómez", Rol.DOCENTE);
+        Usuario docenteCie = new Usuario("D003", passwordEncriptado, "Carlos Ruiz", Rol.DOCENTE);
+        Usuario docenteSoc = new Usuario("D004", passwordEncriptado, "María López", Rol.DOCENTE);
+        Usuario docenteIng = new Usuario("D005", passwordEncriptado, "Pedro Sánchez", Rol.DOCENTE);
         Usuario estudiante1 = new Usuario("E001", passwordEncriptado, "Ana García", Rol.ESTUDIANTE, "9A");
         Usuario estudiante2 = new Usuario("E002", passwordEncriptado, "Carlos López", Rol.ESTUDIANTE, "9A");
         Usuario estudiante3 = new Usuario("E003", passwordEncriptado, "María Rodríguez", Rol.ESTUDIANTE, "9B");
@@ -36,8 +40,11 @@ public class ServicioNotas {
         Usuario estudiante7 = new Usuario("E007", passwordEncriptado, "Sofia Vargas", Rol.ESTUDIANTE, "10B");
         Usuario estudiante8 = new Usuario("E008", passwordEncriptado, "Daniel Castro", Rol.ESTUDIANTE, "10B");
         
-        logger.debug("Creando usuario docente: {}", docente);
-        usuarios.put(docente.getDocumento(), docente);
+        usuarios.put(docenteMat.getDocumento(), docenteMat);
+        usuarios.put(docenteEsp.getDocumento(), docenteEsp);
+        usuarios.put(docenteCie.getDocumento(), docenteCie);
+        usuarios.put(docenteSoc.getDocumento(), docenteSoc);
+        usuarios.put(docenteIng.getDocumento(), docenteIng);
         usuarios.put(estudiante1.getDocumento(), estudiante1);
         usuarios.put(estudiante2.getDocumento(), estudiante2);
         usuarios.put(estudiante3.getDocumento(), estudiante3);
@@ -47,26 +54,56 @@ public class ServicioNotas {
         usuarios.put(estudiante7.getDocumento(), estudiante7);
         usuarios.put(estudiante8.getDocumento(), estudiante8);
 
-        // Matemáticas para diferentes grados
-        Materia matematicas9A = new Materia("MAT9A", "Matemáticas 9A", "9A", docente.getDocumento());
-        Materia matematicas9B = new Materia("MAT9B", "Matemáticas 9B", "9B", docente.getDocumento());
-        Materia matematicas10A = new Materia("MAT10A", "Matemáticas 10A", "10A", docente.getDocumento());
-        Materia matematicas10B = new Materia("MAT10B", "Matemáticas 10B", "10B", docente.getDocumento());
+        // Crear materias para cada grado
+        crearMaterias("9A");
+        crearMaterias("9B");
+        crearMaterias("10A");
+        crearMaterias("10B");
 
-        materias.put(matematicas9A.getId(), matematicas9A);
-        materias.put(matematicas9B.getId(), matematicas9B);
-        materias.put(matematicas10A.getId(), matematicas10A);
-        materias.put(matematicas10B.getId(), matematicas10B);
+        // Agregar notas iniciales para cada estudiante
+        inicializarNotas(estudiante1.getDocumento(), "9A");
+        inicializarNotas(estudiante2.getDocumento(), "9A");
+        inicializarNotas(estudiante3.getDocumento(), "9B");
+        inicializarNotas(estudiante4.getDocumento(), "9B");
+        inicializarNotas(estudiante5.getDocumento(), "10A");
+        inicializarNotas(estudiante6.getDocumento(), "10A");
+        inicializarNotas(estudiante7.getDocumento(), "10B");
+        inicializarNotas(estudiante8.getDocumento(), "10B");
+    }
 
-        // Agregar notas para diferentes materias (solo para estudiantes del grado correspondiente)
-        agregarNota(estudiante1.getDocumento(), matematicas9A.getId(), 4.5);
-        agregarNota(estudiante2.getDocumento(), matematicas9A.getId(), 3.8);
-        agregarNota(estudiante3.getDocumento(), matematicas9B.getId(), 4.2);
-        agregarNota(estudiante4.getDocumento(), matematicas9B.getId(), 3.9);
-        agregarNota(estudiante5.getDocumento(), matematicas10A.getId(), 4.0);
-        agregarNota(estudiante6.getDocumento(), matematicas10A.getId(), 4.3);
-        agregarNota(estudiante7.getDocumento(), matematicas10B.getId(), 3.7);
-        agregarNota(estudiante8.getDocumento(), matematicas10B.getId(), 4.1);
+    private void crearMaterias(String grado) {
+        // Matemáticas
+        Materia matematicas = new Materia("MAT" + grado, "Matemáticas " + grado, grado, "D001");
+        materias.put(matematicas.getId(), matematicas);
+
+        // Español
+        Materia espanol = new Materia("ESP" + grado, "Español " + grado, grado, "D002");
+        materias.put(espanol.getId(), espanol);
+
+        // Ciencias Naturales
+        Materia ciencias = new Materia("CIE" + grado, "Ciencias Naturales " + grado, grado, "D003");
+        materias.put(ciencias.getId(), ciencias);
+
+        // Sociales
+        Materia sociales = new Materia("SOC" + grado, "Ciencias Sociales " + grado, grado, "D004");
+        materias.put(sociales.getId(), sociales);
+
+        // Inglés
+        Materia ingles = new Materia("ING" + grado, "Inglés " + grado, grado, "D005");
+        materias.put(ingles.getId(), ingles);
+    }
+
+    private void inicializarNotas(String estudianteId, String grado) {
+        // Obtener todas las materias del grado
+        materias.values().stream()
+               .filter(m -> m.getGrado().equals(grado))
+               .forEach(materia -> {
+                   // Generar una nota aleatoria entre 3.0 y 5.0
+                   double notaAleatoria = 3.0 + Math.random() * 2.0;
+                   // Redondear a un decimal
+                   notaAleatoria = Math.round(notaAleatoria * 10.0) / 10.0;
+                   agregarNota(estudianteId, materia.getId(), notaAleatoria);
+               });
     }
 
     private void agregarNota(String estudianteId, String materiaId, double calificacion) {
@@ -112,9 +149,13 @@ public class ServicioNotas {
     }
 
     public Flux<Nota> obtenerNotasEstudiante(String estudianteId) {
-        return Flux.fromIterable(notas.values())
-            .flatMap(Flux::fromIterable)
-            .filter(n -> n.getEstudianteId().equals(estudianteId));
+        return Flux.fromIterable(materias.values())
+            .flatMap(materia -> Flux.fromIterable(notas.getOrDefault(materia.getId(), new ArrayList<>()))
+                .filter(nota -> nota.getEstudianteId().equals(estudianteId))
+                .map(nota -> {
+                    nota.setNombreMateria(materia.getNombre());
+                    return nota;
+                }));
     }
 
     public Mono<Void> calificarEstudiante(String materiaId, String estudianteId, Double calificacion) {
@@ -126,23 +167,19 @@ public class ServicioNotas {
         if (estudiante != null && materia != null && estudiante.getGrado().equals(materia.getGrado())) {
             List<Nota> notasMateria = notas.get(materiaId);
             if (notasMateria != null) {
-                // Buscar si ya existe una nota para este estudiante
                 Optional<Nota> notaExistente = notasMateria.stream()
                     .filter(n -> n.getEstudianteId().equals(estudianteId))
                     .findFirst();
                 
                 if (notaExistente.isPresent()) {
-                    // Actualizar la nota existente
                     logger.debug("Actualizando nota existente de {} a {}", notaExistente.get().getCalificacion(), calificacion);
                     notasMateria.remove(notaExistente.get());
                     notasMateria.add(new Nota(estudianteId, materiaId, calificacion));
                 } else {
-                    // Agregar nueva nota
                     logger.debug("Agregando nueva nota para el estudiante");
                     notasMateria.add(new Nota(estudianteId, materiaId, calificacion));
                 }
             } else {
-                // Si no existe la lista de notas para esta materia, crearla
                 logger.debug("Creando nueva lista de notas para la materia");
                 List<Nota> nuevasNotas = new ArrayList<>();
                 nuevasNotas.add(new Nota(estudianteId, materiaId, calificacion));
