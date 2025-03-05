@@ -48,12 +48,9 @@
                             <td th:text="${nota.nombreEstudiante}">Juan Pérez</td>
                             <td th:text="${nota.nota}">4.5</td>
                             <td>
-                                <form th:action="@{/materia/{id}/eliminar(id=${materia.id})}" method="post">
-                                    <input type="hidden" name="documento" th:value="${nota.documento}">
-                                    <input type="hidden" name="lang" th:value="${#locale.language}">
-                                    <button type="submit" class="btn btn-danger btn-sm" 
-                                            th:text="#{materia.eliminar}">Eliminar</button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-sm eliminar-nota" 
+                                        th:attr="data-documento=${nota.documento}"
+                                        th:text="#{materia.eliminar}">Eliminar</button>
                             </td>
                         </tr>
                     </tbody>
@@ -89,37 +86,46 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    // Agregar evento change al select para mostrar el valor seleccionado
-    document.getElementById('documento').addEventListener('change', function() {
-        console.log('Estudiante seleccionado - documento:', this.value);
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    const materiaId = /*[[${materia.id}]]*/ '';
+    const lang = /*[[${#locale.language}]]*/ 'es';
+
+    // Manejar eliminación de notas
+    document.querySelectorAll('.eliminar-nota').forEach(button => {
+        button.addEventListener('click', function() {
+            const documento = this.getAttribute('data-documento');
+            if (confirm('¿Está seguro de que desea eliminar esta nota?')) {
+                const url = `/materia/${materiaId}/eliminar?documento=${encodeURIComponent(documento)}&lang=${encodeURIComponent(lang)}`;
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
     });
 
+    // Manejar calificación de estudiantes
     document.getElementById('calificarForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
         const documento = formData.get('documento');
         const nota = formData.get('nota');
-        const lang = formData.get('lang');
         
-        // Mostrar un mensaje más visible
-        console.log('==========================================');
-        console.log('DATOS DEL FORMULARIO:');
-        console.log('------------------------------------------');
-        console.log('Documento del estudiante:', documento);
-        console.log('Nota:', nota);
-        console.log('Idioma:', lang);
-        console.log('==========================================');
-
-        // Construir la URL con los parámetros
         const url = this.action + '?documento=' + encodeURIComponent(documento) + 
                    '&nota=' + encodeURIComponent(nota) + 
                    '&lang=' + encodeURIComponent(lang);
 
-        console.log('URL a enviar:', url);
-
-        // Realizar la solicitud
         fetch(url, {
             method: 'POST',
             headers: {
@@ -127,13 +133,13 @@
             }
         })
         .then(response => {
-            console.log('Respuesta recibida:', response.status);
             if (response.redirected) {
                 window.location.href = response.url;
             }
         })
         .catch(error => console.error('Error:', error));
     });
+    /*]]>*/
     </script>
 </body>
 </html>

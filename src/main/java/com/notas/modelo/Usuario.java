@@ -2,14 +2,12 @@ package com.notas.modelo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 /**
  * Representa un usuario del sistema (estudiante o docente)
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Usuario {
     /** Número de documento del usuario */
     private String documento;
@@ -22,4 +20,19 @@ public class Usuario {
     
     /** Rol del usuario (ESTUDIANTE o DOCENTE) */
     private Rol rol;
+    
+    /** Grado del usuario (solo para estudiantes) */
+    private String grado;
+
+    public Usuario(String documento, String password, String nombre, Rol rol) {
+        this(documento, password, nombre, rol, null);
+    }
+
+    public Usuario(String documento, String password, String nombre, Rol rol, String grado) {
+        this.documento = documento;
+        this.password = password;
+        this.nombre = nombre;
+        this.rol = rol;
+        this.grado = grado;
+    }
 }
