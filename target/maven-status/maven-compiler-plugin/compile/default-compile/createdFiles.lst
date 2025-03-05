@@ -1,0 +1,16 @@
+com\notas\dto\NotaDTO.class
+com\notas\modelo\Nota.class
+com\notas\config\ConfiguracionSeguridad.class
+com\notas\modelo\NotaDTO.class
+com\notas\modelo\MateriaDTO.class
+com\notas\config\ConfiguracionInternacionalizacion.class
+com\notas\modelo\Materia.class
+com\notas\modelo\Rol.class
+com\notas\modelo\Curso.class
+com\notas\modelo\Usuario.class
+com\notas\config\ConfiguracionWeb.class
+com\notas\servicio\ServicioNotas.class
+com\notas\SistemaNotasApplication.class
+com\notas\dto\MateriaDTO.class
+com\notas\config\ConfiguracionInternacionalizacion$1.class
+com\notas\controlador\ControladorPrincipal.class

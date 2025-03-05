@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{docente.titulo}">Portal Docente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand" th:text="#{app.titulo}">Sistema de Notas</span>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-link" th:text="${'Bienvenido, ' + nombreUsuario}">Bienvenido</span>
+                <a th:href="@{/docente(lang='es')}" class="nav-link">Español</a>
+                <a th:href="@{/docente(lang='en')}" class="nav-link">English</a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link nav-link" th:text="#{nav.cerrarSesion}">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 th:text="#{docente.misMaterias}">Mis Materias</h2>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th th:text="#{materias.codigo}">Código</th>
+                            <th th:text="#{materias.nombre}">Nombre</th>
+                            <th th:text="#{materias.estudiantes}">Estudiantes</th>
+                            <th th:text="#{materias.acciones}">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="materia : ${materias}">
+                            <td th:text="${materia.id}">MAT101</td>
+                            <td th:text="${materia.nombre}">Matemáticas</td>
+                            <td th:text="${materia.estudiantes != null ? materia.estudiantes.size() : 0}">30</td>
+                            <td>
+                                <a th:href="@{/materia/{id}(id=${materia.id},lang=${#locale.language})}" 
+                                   class="btn btn-primary btn-sm" 
+                                   th:text="#{materias.ver}">Ver</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
