@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{app.titulo}">Sistema de Notas</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Error</h3>
+                </div>
+                <div class="card-body">
+                    <div class="error-container">
+                        <h2>Error</h2>
+                        <p th:text="${error}">Ha ocurrido un error inesperado.</p>
+                        <a th:href="@{/login}" class="btn btn-primary" th:text="#{volver}">Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
