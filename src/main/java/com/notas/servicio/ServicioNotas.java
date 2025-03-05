@@ -211,4 +211,19 @@ public class ServicioNotas {
             .filter(n -> n.getEstudianteId().equals(estudianteId))
             .map(n -> materias.get(n.getMateriaId()));
     }
+
+    public Mono<Void> registrarEstudiante(String documento, String nombre, String password, String grado) {
+        if (usuarios.containsKey(documento)) {
+            return Mono.error(new RuntimeException("El estudiante ya existe"));
+        }
+
+        String passwordEncriptado = passwordEncoder.encode(password);
+        Usuario nuevoEstudiante = new Usuario(documento, passwordEncriptado, nombre, Rol.ESTUDIANTE, grado);
+        usuarios.put(documento, nuevoEstudiante);
+        
+        // Inicializar notas para el nuevo estudiante
+        inicializarNotas(documento, grado);
+        
+        return Mono.empty();
+    }
 }

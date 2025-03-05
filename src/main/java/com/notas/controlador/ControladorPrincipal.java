@@ -5,6 +5,7 @@ import com.notas.dto.MateriaDTO;
 import com.notas.dto.NotaDTO;
 import com.notas.servicio.ServicioNotas;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -210,5 +211,24 @@ public class ControladorPrincipal {
         
         return servicioNotas.eliminarNota(id, documento)
             .thenReturn("redirect:/materia/" + id + "?lang=" + lang);
+    }
+
+    @GetMapping("/registroEstudiante")
+    public String mostrarRegistroEstudiante() {
+        return "registroEstudiante";
+    }
+
+    @PostMapping("/registrarEstudiante")
+    public Mono<String> registrarEstudiante(@RequestParam String documento,
+                                    @RequestParam String nombre,
+                                    @RequestParam String password,
+                                    @RequestParam String grado,
+                                    @RequestParam(defaultValue = "es") String lang) {
+        return servicioNotas.registrarEstudiante(documento, nombre, password, grado)
+                .then(Mono.just("redirect:/docente?registroExitoso=true&lang=" + lang))
+                .onErrorResume(e -> {
+                    logger.error("Error al registrar estudiante", e);
+                    return Mono.just("redirect:/registroEstudiante?error=true&lang=" + lang);
+                });
     }
 }
