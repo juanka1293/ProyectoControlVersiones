@@ -101,8 +101,33 @@ public class ServicioNotas {
     }
 
     public Mono<Void> calificarEstudiante(String materiaId, String estudianteId, Double calificacion) {
-        Nota nuevaNota = new Nota(estudianteId, materiaId, calificacion);
-        notas.computeIfAbsent(materiaId, k -> new ArrayList<>()).add(nuevaNota);
+        logger.debug("Calificando estudiante {} en materia {} con nota {}", estudianteId, materiaId, calificacion);
+        
+        List<Nota> notasMateria = notas.get(materiaId);
+        if (notasMateria != null) {
+            // Buscar si ya existe una nota para este estudiante
+            Optional<Nota> notaExistente = notasMateria.stream()
+                .filter(n -> n.getEstudianteId().equals(estudianteId))
+                .findFirst();
+            
+            if (notaExistente.isPresent()) {
+                // Actualizar la nota existente
+                logger.debug("Actualizando nota existente de {} a {}", notaExistente.get().getCalificacion(), calificacion);
+                notasMateria.remove(notaExistente.get());
+                notasMateria.add(new Nota(estudianteId, materiaId, calificacion));
+            } else {
+                // Agregar nueva nota
+                logger.debug("Agregando nueva nota para el estudiante");
+                notasMateria.add(new Nota(estudianteId, materiaId, calificacion));
+            }
+        } else {
+            // Si no existe la lista de notas para esta materia, crearla
+            logger.debug("Creando nueva lista de notas para la materia");
+            List<Nota> nuevasNotas = new ArrayList<>();
+            nuevasNotas.add(new Nota(estudianteId, materiaId, calificacion));
+            notas.put(materiaId, nuevasNotas);
+        }
+        
         return Mono.empty();
     }
 
@@ -114,9 +139,6 @@ public class ServicioNotas {
         return Mono.empty();
     }
 
-    /**
-     * Obtiene los estudiantes de un grado específico
-     */
     public Flux<Usuario> obtenerEstudiantesGrado(String grado) {
         return Flux.fromIterable(usuarios.values())
             .filter(u -> u.getRol() == Rol.ESTUDIANTE)

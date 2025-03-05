@@ -187,12 +187,13 @@ public class ControladorPrincipal {
      * Califica a un estudiante en una materia
      */
     @PostMapping("/materia/{id}/calificar")
-    @ResponseBody
     public Mono<String> calificar(@PathVariable String id, 
-                                 @RequestParam("documento") String documento, 
-                                 @RequestParam("nota") Double nota,
-                                 @RequestParam(name = "lang", required = false, defaultValue = "es") String lang) {
+                                 @RequestParam String documento, 
+                                 @RequestParam Double nota,
+                                 @RequestParam(defaultValue = "es") String lang) {
         logger.debug("Calificando estudiante {} en materia {} con nota {}", documento, id, nota);
+        logger.debug("Parámetros recibidos - id: {}, documento: {}, nota: {}, lang: {}", id, documento, nota, lang);
+        
         return servicioNotas.calificarEstudiante(id, documento, nota)
             .thenReturn("redirect:/materia/" + id + "?lang=" + lang);
     }
@@ -201,11 +202,12 @@ public class ControladorPrincipal {
      * Elimina la nota de un estudiante en una materia
      */
     @PostMapping("/materia/{id}/eliminar")
-    @ResponseBody
     public Mono<String> eliminarNota(@PathVariable String id, 
-                                    @RequestParam("documento") String documento,
-                                    @RequestParam(name = "lang", required = false, defaultValue = "es") String lang) {
+                                    @RequestParam String documento,
+                                    @RequestParam(defaultValue = "es") String lang) {
         logger.debug("Eliminando nota de estudiante {} en materia {}", documento, id);
+        logger.debug("Parámetros recibidos - id: {}, documento: {}, lang: {}", id, documento, lang);
+        
         return servicioNotas.eliminarNota(id, documento)
             .thenReturn("redirect:/materia/" + id + "?lang=" + lang);
     }
